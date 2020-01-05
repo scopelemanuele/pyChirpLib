@@ -25,10 +25,10 @@ class Chirp:
     def get_reg(self, reg, lenght=2):
         val = self.i2c.readfrom_mem(self.address, reg, lenght)
         return self._bytes_to_int(val)
-    
+
     @property
     def sensor_address(self):
-        return self.get_reg(0x02,1)
+        return self.get_reg(0x02, 1)
 
     def reset(self):
         print("Resetting")
@@ -43,30 +43,24 @@ class Chirp:
         self.i2c.writeto_mem(self.address, 0x01, bytearray(addr))
         self.reset()
         self.address = new_addr
-    
-    #Not tested
-    """
+
     def sleep(self):
-      
-        self.i2c.writeto_mem(self.address, 0x08, bytearray(self._int_to_bytes(0,1)))
+        self.i2c.writeto(self.address, bytearray(self._int_to_bytes(0x08, 1)))
 
     def wake_up(self, wake_time=1):
         try:
-            self.get_reg(0x07,1)
-        except OSError:
+            self.version()
+        except:
             pass
-        finally:
-            sleep(wake_time)
-    """
-    
+        sleep(wake_time)
+
     @property
     def version(self):
-        return self.get_reg(7,1)
-    
+        return self.get_reg(7, 1)
+
     @property
     def busy(self):
-        busy = self.get_reg(9,1)
-
+        busy = self.get_reg(9, 1)
         if busy == 1:
             return True
         else:
@@ -74,19 +68,19 @@ class Chirp:
 
     @property
     def moisture(self):
-        return self.get_reg(0,2)
+        return self.get_reg(0, 2)
 
     @property
     def temperature(self):
-        return self.get_reg(5,2)/10
+        return self.get_reg(5, 2)/10
 
     def light(self):
-        self.i2c.writeto_mem(self.address, 0x03, bytearray(self._int_to_bytes(0,1)))
+        self.i2c.writeto_mem(self.address, 0x03,
+                             bytearray(self._int_to_bytes(0, 1)))
         sleep(1.5)
-        return self.get_reg(4,2)
+        return self.get_reg(4, 2)
 
     @property
     def moist_percent(self):
         moisture = self.moisture
-        return round((((moisture - self.min_moist)/(self.max_moist - self.min_moist)) * 100), 1)
-        
+        return round((((moisture - self.min_moist)*100)/(self.max_moist-self.min_moist)), 1)
