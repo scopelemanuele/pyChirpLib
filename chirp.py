@@ -44,6 +44,8 @@ class Chirp:
         self.reset()
         self.address = new_addr
 
+    # Not tested
+
     def sleep(self):
         self.i2c.writeto(self.address, bytearray(self._int_to_bytes(0x08, 1)))
 
@@ -83,4 +85,10 @@ class Chirp:
     @property
     def moist_percent(self):
         moisture = self.moisture
-        return round((((moisture - self.min_moist)*100)/(self.max_moist-self.min_moist)), 1)
+        hum = round((((moisture - self.min_moist)*100) /
+                     (self.max_moist-self.min_moist)), 1)
+        if hum > 100:
+            return 100
+        if hum < 0:
+            return 0
+        return hum
